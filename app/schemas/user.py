@@ -9,6 +9,8 @@ class UserSchema(BaseModel):
     email: EmailStr  # 이메일 (유효성 검사)
     phone: Optional[str] = None  # 전화번호 (선택적)
     address: Optional[str] = None  # 주소 (선택적)
+    address1: Optional[str] = None  # 주소 (선택적)
+    address2: Optional[str] = None  # 주소 (선택적)
     approval_status: str = Field(default='N', max_length=1)  # 승인 여부 ('Y' = 승인, 'N' = 미승인)
     role_id: Optional[int] = None  # null 허용 가능하도록 수정
     created_at: Optional[datetime] = None  # 가입일 (타임스탬프)
@@ -24,6 +26,7 @@ class UserCreate(UserSchema):
 
 class UserUpdate(UserSchema):
     password: Optional[str] = None  # 비밀번호 (선택적)
+    passwordConfirm: Optional[str] = None  # 비밀번호 확인 (선택적)
 
 class User(UserSchema):
     created_at: str  # 가입일 (TIMESTAMP 형식)
@@ -67,15 +70,33 @@ class UserRoleList(BaseModel):
 
 # UserHistory 스키마
 class UserHistoryBase(BaseModel):
-    history_id: int  # 이력 고유 ID
-    user_id: str  # 회원 ID (TEXT 타입)
-    login_time: str  # 접속 일시
-    login_ip: Optional[str] = None  # 접속한 IP 주소 (선택적)
-
+    history_id: Optional[int] = None  # 기본값 None
+    user_id: str
+    login_time: Optional[datetime] = None
+    login_ip: Optional[str] = None
+    request_path: Optional[str] = None  # 요청 경로
+    memo: Optional[str] = None  # 추가 메모
+    
 class UserHistoryCreate(UserHistoryBase):
     pass
 
-class UserHistory(UserHistoryBase):
+class UserHistorySchmas(UserHistoryBase):
+    pass
+
+# Blacklist 스키마
+class BlacklistBase(BaseModel):
+    ip_address: str  # 차단된 IP 주소
+    user_id: Optional[str] = None # 차단된 사용자 ID (선택적)
+    created_at: Optional[datetime] = None  # 생성일 (타임스탬프)
+
+    class Config:
+        orm_mode = True  # ORM 모드 활성화
+        from_attributes = True  # from_orm을 사용할 수 있도록 설정
+
+class BlacklistCreate(BlacklistBase):
+    pass
+
+class BlacklistResponse(BlacklistBase):
     pass
 
 # 전체 스키마 리스트
